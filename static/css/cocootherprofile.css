@@ -1,0 +1,336 @@
+:root {
+    --bg:#fff7f9;
+    --card:#fff;
+    --accent:#ff9db8;
+    --accent2:#ffe6ef;
+    --text:#444;
+    --muted:#888;
+    --radius:16px;
+    font-family:"Noto Sans JP","Rounded Mplus 1c",sans-serif;
+  }
+  
+  /* 基本 */
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+  }
+  .app{
+    display:flex;
+    flex-direction:column;
+    max-width:600px;
+    margin:0 auto;
+    min-height:100vh;
+    padding-bottom:80px;
+    padding:12px;
+  }
+  
+  /* ヘッダー */
+  .header-bar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+    padding:4px;
+  }
+  .logo{
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    overflow:hidden;
+  }
+  .logo img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .app-name{
+    font-size:18px;
+    font-weight:700;
+  }
+  
+  /* プロフィールカード */
+  .profile-area{
+    background:var(--card);
+    padding:28px 20px;
+    border-radius:var(--radius);
+    box-shadow:0 3px 8px rgba(0,0,0,0.07);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:22px;
+  }
+  .profile-icon{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    overflow:hidden;
+    background:linear-gradient(45deg,#ff9db8,#ffd6e3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:38px;
+    font-weight:bold;
+    color:#fff;
+    margin-bottom:14px;
+  }
+  .profile-icon img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  .profile-name{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .profile-bio{
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:18px;
+    text-align:center;
+    line-height:1.5;
+  }
+  
+  /* 詳細情報 */
+  .details-area{
+    width:100%;
+    margin-top:8px;
+  }
+  .detail-row{
+    display:flex;
+    gap:10px;
+    padding:10px 12px;
+    background:#fff9fb;
+    border-radius:12px;
+    border:1px solid #ffe3ed;
+    margin-bottom:8px;
+  }
+  .detail-key{
+    min-width:95px;
+    font-weight:700;
+    font-size:14px;
+  }
+  .detail-value{
+    flex:1;
+    font-size:14px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  
+  /* 見出し */
+  h3{
+    font-size:16px;
+    margin:6px 4px 12px;
+    font-weight:700;
+  }
+  
+  /* 投稿カード */
+  .post-card {
+    background: var(--card);
+    padding: 16px;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+  }
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-weight: bold;
+    font-size: 15px;
+  }
+  .icon {
+    width: 40px;
+    height: 40px;
+    background: #ffeeba;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--text);
+    font-size: 16px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .icon img {
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    object-fit:cover;
+  }
+  .user-name {
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .time {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .post-content{
+    font-size:14px;
+    line-height:1.55;
+    margin-bottom:10px;
+    white-space:pre-wrap;
+  }
+  .post-content {
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .post-image {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    object-fit: cover;
+  }
+  .post-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .like-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .like-btn.liked {
+      color: red;
+  }
+  .reply-btn {
+    background: #ffe0ef;
+    border: 1px solid #ffbcd4;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+.reply-btn:hover {
+    background: #ffcee0;
+}
+
+.reply-list {
+    margin-top: 10px;
+    padding-left: 10px;
+    border-left: 3px solid #ffd0dc;
+}
+
+.reply-item {
+    background: #fff0f5;
+    border-radius: 10px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+.reply-toggle,
+.reply-toggle-close {
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+    margin: 6px 0;
+}
+.reply-toggle:hover,
+.reply-toggle-close:hover {
+    text-decoration: underline;
+}
+
+
+  /* ナビバー */
+  .nav-bar{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    background:var(--card);
+    height:60px;
+    max-width:600px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    border-radius:var(--radius) var(--radius) 0 0;
+    box-shadow:0 -2px 6px rgba(0,0,0,0.1);
+    z-index:20;
+  }
+  .nav-item{
+    flex:1;
+    text-align:center;
+    text-decoration:none;
+    font-size:11px;
+    color:var(--muted);
+    padding:8px 0;
+  }
+  .nav-item.active{
+    color:var(--accent);
+    font-weight:bold;
+  }
+  .nav-item:hover{
+    background:#fff5f9;
+    border-radius:10px;
+  }
+
+  #userPostsDiv {
+    padding-bottom: 100px;
+  }
+
+/* ===== フォロー & DM ボタン ===== */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin: 10px 0 20px;
+}
+
+.follow-btn,
+.dm-btn {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 28px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* フォロー */
+.follow-btn {
+  background: #ffb6cf;
+  color: white;
+  border: none;
+}
+
+.follow-btn.following {
+  background: #bbbbbb;
+}
+
+/* DM */
+.dm-btn {
+  background: #ffe0ef;
+  border: 2px solid #ffbcd4;
+  color: #444;
+}
+
+.follow-btn:hover,
+.dm-btn:hover {
+  opacity: 0.85;
+}
+
+
+  
+  /* スマホ最適化 */
+  @media (max-width:420px){
+    .profile-icon{width:78px;height:78px;font-size:30px;}
+    .profile-name{font-size:19px;}
+    .detail-key{min-width:78px;font-size:13px;}
+    .post-card{padding:12px;}
+  }
+  

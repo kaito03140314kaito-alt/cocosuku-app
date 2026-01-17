@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 Not Found — ココスク</title>
+<style>
+:root {
+  --bg:#fff7f9; 
+  --card:#fff; 
+  --accent:#ffd1dc; 
+  --accent2:#ffeeba; 
+  --text:#444; 
+  --radius:16px; 
+  font-family:"Noto Sans JP","Rounded Mplus 1c",sans-serif;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  text-align:center;
+  flex-direction:column;
+}
+.error-container{
+  background:var(--card);
+  padding:30px;
+  border-radius:var(--radius);
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  width:90%;
+  max-width:400px;
+}
+.error-code{
+  font-size:80px;
+  font-weight:bold;
+  color:#ff7fa3; /* アクセントカラーを強めに */
+  margin:0;
+}
+.error-message{
+  font-size:20px;
+  margin-top:0;
+  margin-bottom:20px;
+}
+.home-link{
+  text-decoration:none;
+  padding:10px 20px;
+  border-radius:12px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  color:var(--text);
+  font-weight:bold;
+  font-size:16px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.1);
+  display:inline-block;
+}
+.home-link:hover{
+  transform:scale(1.05);
+  transition:0.2s;
+}
+</style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-code">404</div>
+    <div class="error-message">お探しのページは見つかりませんでした</div>
+    <p style="color:var(--muted); font-size:14px;">
+      アクセスしようとしたページは、削除されたか、名前が変更されたか、一時的に利用できなくなっている可能性があります。
+    </p>
+    <a href="cocotimeline.html" class="home-link">タイムラインに戻る</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DM — ココスク</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cocochat.css') }}">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ヘッダー -->
+  <div class="brand" onclick="location.href='{{ url_for('timeline') }}'">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="">
+    </div>
+    <div class="app-name">DM</div>
+  </div>
+
+  <!-- DM一覧（チャット一覧のときだけ表示） -->
+  {% if not room_id %}
+  <div id="dmListScreen">
+    <div class="dm-list-container">
+  
+      {% if rooms %}
+        {% for room in rooms %}
+          <div class="dm-item" onclick="location.href='/dm/chat/{{ room.other_user.uid }}'">
+  
+            <div class="dm-avatar">
+              {% if room.other_user.get('avatar_url') %}
+                <img src="{{ room.other_user.avatar_url }}" class="avatar-img">
+              {% else %}
+                {{ room.other_user.name[0] }}
+              {% endif %}
+            </div>
+  
+            <div class="dm-info">
+              <div class="dm-name">{{ room.other_user.name }}</div>
+              <div class="dm-preview">
+                {{ room.last_message or "メッセージはまだありません" }}
+              </div>
+            </div>
+  
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:#777; padding:20px;">まだDMはありません</p>
+      {% endif %}
+  
+    </div>
+  </div>
+  
+
+  {% endif %}
+
+  <!-- チャット画面 -->
+  {% if room_id %}
+  <div id="chatScreen" style="display:flex;">
+    <div class="chat-header">
+      <button class="back-btn" onclick="location.href='{{ url_for('dm_list') }}'">◀</button>
+      <div class="chat-title">{{ other.name }}</div>
+    </div>
+
+    <div class="chat-container" id="chatContainer"></div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" class="chat-input" placeholder="メッセージを入力…">
+      <button class="send-btn" onclick="sendMessage()">送信</button>
+    </div>
+  </div>
+
+  <script>
+    window.ROOM_ID = "{{ room_id }}";
+    window.CURRENT_UID = "{{ current_uid }}";
+  </script>
+  {% endif %}
+
+</div>
+
+<!-- ナビバー -->
+<div class="nav-bar">
+  <a href="{{ url_for('timeline') }}" class="nav-item">🏠 TL</a>
+  <a href="{{ url_for('search_page') }}" class="nav-item">🔍 検索</a>
+  <a href="{{ url_for('notifications') }}" class="nav-item">🔔 通知</a>
+  <a href="{{ url_for('dm_list') }}" class="nav-item active">💬 DM</a>
+  <a href="{{ url_for('profile') }}" class="nav-item">👤 プロフ</a>
+  <a href="{{ url_for('calendar_password') }}" class="nav-item">📅 予定</a>
+</div>
+
+<script src="{{ url_for('static', filename='js/cocochat.js') }}"></script>
+</body>
+</html>

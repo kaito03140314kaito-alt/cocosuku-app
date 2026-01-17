@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>検索 — ココスク</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cocosearch.css') }}">
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== ヘッダー ===== -->
+  <div class="brand" onclick="location.href='{{ url_for('timeline') }}'">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="logo">
+    </div>
+    <div class="app-name">検索</div>
+  </div>
+
+  <!-- ===== 検索バー ===== -->
+  <form class="search-bar" method="GET" action="{{ url_for('search_page') }}">
+    <input
+      type="text"
+      name="q"
+      class="search-input"
+      placeholder="ユーザー・投稿を検索"
+      value="{{ query }}"
+    >
+
+    <button class="search-btn">検索</button>
+  </form>
+
+  {% if query %}
+
+    <!-- ===== ユーザー検索結果 ===== -->
+    <div class="results-header">ユーザー</div>
+
+    {% if user_results %}
+      {% for u in user_results %}
+        <div class="search-result" onclick="location.href='/user/{{ u.uid }}'">
+          <div class="result-avatar">
+            <img src="{{ u.avatar_url or url_for('static', filename='image/default.png') }}">
+          </div>
+          <div class="result-body">
+            <div class="result-name">{{ u.name }}</div>
+            <div class="result-meta">{{ u.bio or "自己紹介は未設定です" }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-results">ユーザーは見つかりません</div>
+    {% endif %}
+
+    <!-- ===== 投稿検索結果 ===== -->
+    <div class="results-header">投稿</div>
+
+    {% if post_results %}
+      {% for p in post_results %}
+        <div class="search-result"
+             onclick="location.href='{{ url_for('timeline') }}#post-{{ p.id }}'">
+
+          <div class="result-avatar">
+            <img src="{{ p.user_avatar_url or url_for('static', filename='image/default.png') }}">
+          </div>
+
+          <div class="result-body">
+            <div class="result-name">{{ p.user_name }}</div>
+            <div class="result-content">{{ p.content }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-results">投稿は見つかりません</div>
+    {% endif %}
+
+  {% else %}
+    <div class="no-results">検索ワードを入力してください</div>
+  {% endif %}
+
+  <!-- ===== ナビバー ===== -->
+  <div class="nav-bar">
+    <a href="{{ url_for('timeline') }}" class="nav-item">🏠 TL</a>
+    <a href="{{ url_for('search_page') }}" class="nav-item active">🔍 検索</a>
+    <a href="{{ url_for('notifications') }}" class="nav-item">🔔 通知</a>
+    <a href="{{ url_for('dm') }}" class="nav-item">💬 DM</a>
+    <a href="{{ url_for('profile') }}" class="nav-item">👤 プロフ</a>
+    <a href="{{ url_for('calendar_password') }}" class="nav-item">📅 予定</a>
+  </div>
+
+</div>
+</body>
+</html>

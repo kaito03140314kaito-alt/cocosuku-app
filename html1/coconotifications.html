@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>通知 — ココスク</title>
+<link rel="stylesheet" href="static/css/coconotifications.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ブランド部分 -->
+  <div class="brand" onclick="window.location.href='cocotimeline.html'">
+    <div class="logo">
+      <img src="static/image/Cocosku_logo2.png" alt="ココスク ロゴ">
+    </div>
+    <div class="app-name">通知</div>
+  </div>
+
+  <!-- 通知一覧 -->
+  <div class="notification-list" id="notificationList">
+      <!-- 通知はJSで動的に追加 -->
+  </div>
+
+  <!-- ナビゲーションバー -->
+  <div class="nav-bar">
+      <a href="cocotimeline.html" class="nav-item">🏠 TL</a>
+      <a href="cocosearch.html" class="nav-item">🔍 検索</a>
+      <a href="coconotifications.html" class="nav-item active">🔔 通知</a>
+      <a href="cocochat.html" class="nav-item">💬 DM</a>
+      <a href="cocoprofile.html" class="nav-item">👤 プロフ</a>
+      <a href="cococalendar.html" class="nav-item">📅 予定</a>
+  </div>
+</div>
+
+<script src="static/js/coconotifications.js" defer></script>
+</body>
+</html>

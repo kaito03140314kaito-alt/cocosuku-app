@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>設定 — ココスク</title>
+  <link rel="stylesheet" href="static/css/cocosettings.css">
+</head>
+<body>
+  <div class="app">
+    <div class="brand" onclick="goTimeline()">
+    <div class="logo">
+      <img src="static/image/Cocosku_logo2.png" alt="ココスク ロゴ">
+    </div>
+    <div class="app-name">設定</div>
+  </div>
+
+    <div class="settings-group">
+      <div class="group-title">アカウント設定</div>
+      <div class="setting-item" onclick="window.location.href='cocoprofile.html'">
+        <div class="setting-label">プロフィールを編集</div>
+        <div class="setting-action">＞</div>
+      </div>
+      <div class="setting-item" onclick="handleNavigation('パスワード変更画面')">
+        <div class="setting-label">パスワード変更</div>
+        <div class="setting-action">＞</div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">メールアドレス</div>
+        <input type="email" class="setting-input" id="emailInput" value="user@example.com">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="group-title">その他</div>
+      <div class="setting-item" onclick="window.location.href='cocokiyaku.html'">
+        <div class="setting-label">利用規約</div>
+        <div class="setting-action">＞</div>
+      </div>
+      <div class="setting-item" onclick="window.location.href='cocoprivate.html'">
+        <div class="setting-label">プライバシーポリシー</div>
+        <div class="setting-action">＞</div>
+      </div>
+      <div class="setting-item" onclick="window.location.href='cocohelp.html'">
+        <div class="setting-label">ヘルプとサポート</div>
+        <div class="setting-action">＞</div>
+      </div>
+    </div>
+
+    <button class="logout-btn" onclick="openLogoutModal()">ログアウト</button>
+  </div>
+
+  <div class="modal-bg" id="logoutModal">
+    <div class="modal-content">
+      <h3>ログアウト確認</h3>
+      <p>本当にログアウトしますか？</p>
+      <div class="modal-actions">
+        <button onclick="closeLogoutModal()" class="cancel-btn">キャンセル</button>
+        <button onclick="performLogout()" class="confirm-btn">ログアウト</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <a href="cocotimeline.html" class="nav-item">🏠 TL</a>
+    <a href="cocosearch.html" class="nav-item">🔍 検索</a>
+    <a href="coconotifications.html" class="nav-item">🔔 通知</a>
+    <a href="cocochat.html" class="nav-item">💬 DM</a>
+    <a href="cocoprofile.html" class="nav-item">👤 プロフ</a>
+    <a href="cococalendar.html" class="nav-item active">📅 予定</a>
+  </div>
+
+  <script type="module" src="static/js/cocosettings.js"></script>
+</body>
+</html>
+
+
+

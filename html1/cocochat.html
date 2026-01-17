@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DM — ココスク</title>
+<link rel="stylesheet" href="static/css/cocochat.css">
+</head>
+<body>
+<div class="app">
+
+<div class="brand" onclick="goTimeline()">
+    <div class="logo">
+      <img src="static/image/Cocosku_logo2.png" alt="ココスク ロゴ">
+    </div>
+  
+    <div class="app-name">DM</div>
+  </div>
+
+  <div id="dmListScreen">
+   
+    <div class="dm-list-container" id="dmListContainer"></div>
+  </div>
+
+  <div id="chatScreen">
+    <div class="chat-header">
+      <button class="back-btn" onclick="showDmList()">◀</button>
+      <div class="chat-title" id="chatTitle"></div>
+    </div>
+    <div class="chat-container" id="chatContainer"></div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" class="chat-input" placeholder="メッセージを入力...">
+      <button class="send-btn" onclick="sendMessage()">送信</button>
+    </div>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <a href="cocotimeline.html" class="nav-item">🏠 TL</a>
+  <a href="cocosearch.html" class="nav-item">🔍 検索</a>
+  <a href="coconotifications.html" class="nav-item">🔔 通知</a>
+  <a href="cocochat.html" class="nav-item active">💬 DM</a>
+  <a href="cocoprofile.html" class="nav-item">👤 プロフ</a>
+  <a href="cococalendar.html" class="nav-item">📅 予定</a>
+</div>
+
+<script src="static/js/cocochat.js" defer></script>
+</body>
+</html>
+
+
+
+
+

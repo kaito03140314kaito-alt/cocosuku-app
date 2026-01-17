@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>設定 — ココスク</title>
+    <!-- 既存のCSSがあれば読み込む。なければここに追加 -->
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #888888;
+            --accent-color: #6c5ce7;
+            --accent-hover: #5b4cc4;
+            --border-color: #ddd;
+        }
+
+        body {
+            margin: 0;
+            padding-bottom: 70px;
+            /* ナビバー分 */
+            background-color: var(--bg-color);
+            font-family: sans-serif;
+            color: var(--text-main);
+        }
+
+        .app {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            min-height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .app-name {
+            margin-left: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .settings-group {
+            margin-top: 20px;
+            background: var(--card-bg);
+        }
+
+        .group-title {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            background: #fafafa;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .setting-item:active {
+            background: #f9f9f9;
+        }
+
+        .setting-label {
+            font-size: 1rem;
+        }
+
+        .setting-action {
+            color: #ccc;
+        }
+
+        .setting-input {
+            border: none;
+            text-align: right;
+            font-size: 1rem;
+            color: var(--text-sub);
+            outline: none;
+            background: transparent;
+        }
+
+        .logout-btn {
+            display: block;
+            width: 90%;
+            margin: 30px auto;
+            padding: 15px;
+            border: none;
+            border-radius: 999px;
+            background: #ff7675;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* モーダル */
+        .modal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .confirm-btn {
+            background: #ff7675;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <div class="brand" onclick="window.location.href='{{ url_for('timeline') }}'">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}"
+                    onerror="this.style.display='none'" alt="ココスク">
+                <span style="font-weight:bold; font-size:1.2rem; margin-left:10px;">設定</span>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="group-title">アカウント設定</div>
+            <div class="setting-item" onclick="window.location.href='{{ url_for('profile_update') }}'">
+                <div class="setting-label">プロフィールを編集</div>
+                <div class="setting-action">＞</div>
+            </div>
+
+            <!-- パスワード変更 -->
+            <div class="setting-item" onclick="openPasswordModal()">
+                <div class="setting-label">パスワード変更</div>
+                <div class="setting-action">＞</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">メールアドレス</div>
+                <!-- ログインユーザーのメールアドレスを表示 (編集不可) -->
+                <span style="color:var(--text-sub);">{{ user.email }}</span>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="group-title">その他</div>
+            <div class="setting-item" onclick="window.location.href='{{ url_for('kiyaku') }}'">
+                <div class="setting-label">利用規約</div>
+                <div class="setting-action">＞</div>
+            </div>
+            <div class="setting-item" onclick="window.location.href='{{ url_for('privacy') }}'">
+                <div class="setting-label">プライバシーポリシー</div>
+                <div class="setting-action">＞</div>
+            </div>
+            <div class="setting-item" onclick="window.location.href='{{ url_for('help_page') }}'">
+                <div class="setting-label">ヘルプとサポート</div>
+                <div class="setting-action">＞</div>
+            </div>
+        </div>
+
+        <button class="logout-btn" onclick="openLogoutModal()">ログアウト</button>
+    </div>
+
+    <!-- ログアウト確認モーダル -->
+    <div class="modal-bg" id="logoutModal">
+        <div class="modal-content">
+            <h3>ログアウト確認</h3>
+            <p>本当にログアウトしますか？</p>
+            <div class="modal-actions">
+                <button onclick="closeLogoutModal()" class="cancel-btn">キャンセル</button>
+                <button onclick="location.href='{{ url_for('logout') }}'" class="confirm-btn">ログアウト</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- パスワード変更確認モーダル -->
+    <div class="modal-bg" id="passwordModal">
+        <div class="modal-content">
+            <h3>パスワード変更</h3>
+            <p>パスワード再設定用のメールを<br><strong>{{ user.email }}</strong> 宛に送信しますか？</p>
+            <div class="modal-actions">
+                <button onclick="closePasswordModal()" class="cancel-btn">キャンセル</button>
+                <button onclick="sendPasswordReset()" class="confirm-btn" style="background:#6c5ce7;">送信</button>
+            </div>
+        </div>
+    </div>
+
+    {% from 'sidebar_macro.html' import navbar %}
+    {{ navbar('settings') }}
+
+    <script>
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        async function sendPasswordReset() {
+            try {
+                const res = await fetch("{{ url_for('reset_password_request') }}", { method: "POST" });
+                const data = await res.json();
+
+                closePasswordModal();
+
+                if (res.ok) {
+                    alert("再設定メールを送信しました。\nメール内のリンクから新しいパスワードを設定してください。");
+                } else {
+                    alert("送信に失敗しました: " + data.error);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("通信エラーが発生しました");
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+{% for post in posts %}
+<div class="post-card" data-post-id="{{ post.id }}" data-created-at="{{ post.created_at }}">
+    <div class="post-header">
+
+        <!-- アイコン（押したら他ユーザープロフィールへ） -->
+        <div class="icon" onclick="window.location.href='/user/{{ post.user_id }}'">
+            {% if post.user_avatar_url %}
+            <img src="{{ post.user_avatar_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                onerror="this.src='{{ url_for('static', filename='image/default_icon.png') }}'">
+            {% else %}
+            <img src="{{ url_for('static', filename='image/default_icon.png') }}"
+                style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% endif %}
+        </div>
+
+        <div class="user-name" style="cursor:pointer;" onclick="window.location.href='/user/{{ post.user_id }}'">
+            {{ post.user_name }}
+        </div>
+
+    </div>
+
+    <div class="post-content">
+        {{ post.content | replace('\n', '<br>') | safe }}
+    </div>
+
+    {% if post.image_url %}
+    <img src="{{ post.image_url }}" class="post-image">
+    {% endif %}
+
+    <div class="post-footer">
+
+        <!-- ❤️ いいねボタン -->
+        <button class="like-btn" data-post-id="{{ post.id }}">
+            ❤️
+        </button>
+
+        <!-- ❤️ カウント表示 -->
+        <span class="like-count">
+            {{ post.likes | length }}
+        </span>
+
+        <button class="reply-btn" onclick="openReplyModal('{{ post.id }}')">
+            💬 リプライ ({{ post.replies_count | default(0) }})
+        </button>
+
+        {% if post.user_id == user.uid %}
+        <button class="delete-btn" onclick="confirmDeletePost('{{ post.id }}')">
+            🗑 削除
+        </button>
+        {% endif %}
+
+    </div>
+
+    <!-- 🔽 リプライ（3件まで表示）-->
+    {% if post.replies %}
+    <div class="reply-list">
+        {% for reply in post.replies[:3] %}
+        <div class="reply-item">
+            <strong>{{ reply.user_name }}</strong> ：
+            <span>{{ reply.content | replace('\n', '<br>') | safe }}</span>
+
+            {% if reply.user_id == user.uid %}
+            <form action="{{ url_for('delete_reply', post_id=post.id, reply_id=reply.id) }}" method="POST"
+                style="display:inline;">
+                <button class="delete-reply-btn">削除</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- ▼ 他のリプライ表示ボタン -->
+        {% if post.replies | length > 3 %}
+        <div class="reply-toggle" onclick="toggleReplies('{{ post.id }}')" id="toggle-btn-{{ post.id }}">
+            他 {{ post.replies | length - 3 }} 件のリプライを見る
+        </div>
+
+        <div class="reply-hidden" id="hidden-replies-{{ post.id }}" style="display:none;">
+            {% for reply in post.replies[3:] %}
+            <div class="reply-item">
+                <strong>{{ reply.user_name }}</strong> ：
+                <span>{{ reply.content | replace('\n', '<br>') | safe }}</span>
+
+                {% if reply.user_id == user.uid %}
+                <form action="{{ url_for('delete_reply', post_id=post.id, reply_id=reply.id) }}" method="POST"
+                    style="display:inline;">
+                    <button class="delete-reply-btn">削除</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="reply-toggle-close" onclick="toggleReplies('{{ post.id }}')">
+                他 {{ post.replies | length - 3 }} 件のリプライを閉じる
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+{% endfor %}

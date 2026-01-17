@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ログイン — ココスク</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cocologin.css') }}">
+</head>
+<body>
+  <div class="card">
+    <div style="text-align:center; margin-bottom:16px;">
+      <div class="logo-container">
+        <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="ココスク" class="logo">
+      </div>
+    </div>
+
+    <h1>ココスクにログイン</h1>
+
+    <!-- Flask用のフォーム -->
+    <form action="{{ url_for('login_post') }}" method="POST">
+      <input type="email" name="email" placeholder="メールアドレス" required>
+      <input type="password" name="password" placeholder="パスワード" required>
+      <button type="submit" id="login-btn">ログイン</button>
+    </form>
+
+    <div class="link">
+      <a href="{{ url_for('register') }}">新規登録はこちら</a>
+    </div>
+
+    <!-- Flaskからのメッセージ表示 -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+</body>
+</html>

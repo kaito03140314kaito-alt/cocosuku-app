@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検索 — ココスク</title>
+<link rel="stylesheet" href="static/css/cocosearch.css">
+</head>
+<body>
+<div class="app">
+  <div class="brand" onclick="goTimeline()">
+    <div class="logo">
+      <img src="static/image/Cocosku_logo2.png" alt="ココスク ロゴ">
+    </div>
+    <div class="app-name">検索</div>
+  </div>
+    <!-- 検索バー -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="ユーザーを検索..." oninput="liveSearch()">
+        <button class="search-btn" onclick="search()">検索</button>
+    </div>
+
+    <!-- 検索結果 -->
+    <div class="results-header">検索結果</div>
+    <div id="searchResults">
+        <div class="no-results">
+            検索ワードを入力してください。
+        </div>
+    </div>
+
+    <!-- ナビゲーションバー -->
+    <div class="nav-bar">
+        <a href="cocotimeline.html" class="nav-item">🏠 TL</a>
+        <a href="cocosearch.html" class="nav-item active">🔍 検索</a>
+        <a href="coconotifications.html" class="nav-item">🔔 通知</a>
+        <a href="cocochat.html" class="nav-item">💬 DM</a>
+        <a href="cocoprofile.html" class="nav-item">👤 プロフ</a>
+        <a href="cococalendar.html" class="nav-item">📅 予定</a>
+    </div>
+</div>
+
+<script src="static/js/cocosearch.js"></script>
+</body>
+</html>
+
+
+
+
+

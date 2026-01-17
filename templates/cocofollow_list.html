@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Cocosuku</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cocotimeline.css') }}">
+    <style>
+        .user-list {
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .user-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: background 0.2s;
+        }
+
+        .user-item:hover {
+            background: #f9f9f9;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .user-bio {
+            font-size: 0.85rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .page-header {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <div class="page-header">
+            <h2 class="page-title">{{ title }}</h2>
+        </div>
+
+        <div class="user-list">
+            {% if users %}
+            {% for u in users %}
+            <a href="{{ url_for('other_profile', uid=u.uid) }}" class="user-item">
+                <img src="{{ u.avatar_url or url_for('static', filename='image/default_icon.png') }}"
+                    class="user-avatar" onerror="this.src='{{ url_for('static', filename='image/default_icon.png') }}'">
+
+                <div class="user-info">
+                    <div class="user-name">{{ u.name }}</div>
+                    <div class="user-bio">{{ u.bio }}</div>
+                </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <div style="text-align: center; color: #888; margin-top: 50px;">
+                ユーザーがいません
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ナビバー -->
+        {% include 'sidebar_macro.html' %}
+    </div>
+</body>
+
+</html>

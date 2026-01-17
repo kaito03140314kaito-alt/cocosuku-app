@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知 - Cocosuku</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .notification-item {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .notification-item:hover {
+            transform: translateY(-2px);
+        }
+        .notif-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .notif-content {
+            flex: 1;
+        }
+        .notif-text {
+            color: #4a5568;
+            margin-bottom: 5px;
+            font-size: 1.05rem;
+        }
+        .notif-time {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+        .notif-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .no-notif {
+            text-align: center;
+            color: #718096;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- サイドバー読み込み -->
+        {% include 'sidebar_macro.html' ignore missing %}
+        
+        <div class="main-content">
+            <h2 class="page-title">🔔 通知</h2>
+
+            <div class="notifications-list">
+                {% if notifications %}
+                    {% for n in notifications %}
+                        <a href="{{ url_for('timeline') }}" class="notif-link">
+                            <div class="notification-item">
+                                <img src="{{ n.from_avatar_url or url_for('static', filename='default_icon.png') }}" class="notif-avatar" alt="">
+                                <div class="notif-content">
+                                    <div class="notif-text">
+                                        <strong>{{ n.from_name }}</strong> さんが新しく投稿しました✨
+                                    </div>
+                                    <div class="notif-time">
+                                        {{ n.created_at.strftime('%Y/%m/%d %H:%M') if n.created_at else '' }}
+                                    </div>
+                                </div>
+                                {% if not n.is_read %}
+                                <div style="width: 10px; height: 10px; background: #ff6b81; border-radius: 50%;"></div>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-notif">
+                        <p>まだ通知はありません 🍃</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

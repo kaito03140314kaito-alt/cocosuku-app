@@ -1,0 +1,91 @@
+:root {
+    --bg: #fff7f9;
+    --card: #fff;
+    --accent: #ffd1dc;
+    --accent2: #ffeeba;
+    --text: #444;
+    --radius: 16px;
+    font-family: "Noto Sans JP", "Rounded Mplus 1c", sans-serif;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: "Noto Sans JP", "Rounded Mplus 1c", sans-serif;
+  }
+  
+  .card {
+    background: var(--card);
+    padding: 24px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .title {
+    margin-bottom: 24px;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  input:focus {
+    border-color: var(--accent);
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  
+  .btn:hover {
+    transform: scale(1.03);
+    opacity: 0.9;
+  }
+  
+  .link {
+    margin-top: 16px;
+  }
+  
+  .link a {
+    text-decoration: none;
+    color: #ff7fa3;
+    font-weight: bold;
+    font-size: 14px;
+    transition: text-decoration 0.2s;
+  }
+  
+  .link a:hover {
+    text-decoration: underline;
+  }
+  

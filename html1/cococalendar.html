@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カレンダー — ココスク</title>
+<link rel="stylesheet" href="static/css/cococalendar.css">
+<script defer src="static/js/cococalendar.js"></script>　
+</head>
+<body>
+<div class="app">
+  <div class="brand" onclick="goTimeline()">
+    <div class="logo">
+      <img src="static/image/Cocosku_logo2.png" alt="ココスク ロゴ">
+    </div>
+    <div class="app-name">ココスク</div>
+  </div>
+
+  <div class="calendar-header">
+    <button onclick="prevMonth()">◀</button>
+    <h3 id="monthLabel"></h3>
+    <button onclick="nextMonth()">▶</button>
+  </div>
+
+  <div class="calendar-grid" id="calendarGrid"></div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">×</button>
+    <h3 id="modalDate"></h3>
+    <div id="eventList"></div>
+    <hr>
+    <h4>予定を追加</h4>
+    <input type="time" id="eventTime" placeholder="時間（任意）">
+    <input type="text" id="eventTitle" placeholder="予定">
+    <textarea id="eventMemo" rows="3" placeholder="メモ（任意）"></textarea>
+    <button class="add-btn" onclick="addEvent()">追加</button>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <a href="cocotimeline.html" class="nav-item">🏠 TL</a>
+  <a href="cocosearch.html" class="nav-item">🔍 検索</a>
+  <a href="coconotifications.html" class="nav-item">🔔 通知</a>
+  <a href="cocochat.html" class="nav-item">💬 DM</a>
+  <a href="cocoprofile.html" class="nav-item">👤 プロフ</a>
+  <span class="nav-item active">📅 予定</span>
+</div>
+
+<!-- ロール選択モーダル -->
+<div class="role-modal-bg" id="roleModalBg">
+  <div class="role-modal">
+    <h3>あなたはどちらですか？</h3>
+    <div class="role-buttons">
+      <button class="role-btn student" onclick="selectRole('学生')">👩‍🎓 学生</button>
+      <button class="role-btn teacher" onclick="selectRole('教師')">👨‍🏫 教師</button>
+    </div>
+    <div id="teacherPassArea" style="display:none;">
+      <p>教師用暗証番号を入力してください</p>
+      <input type="password" id="teacherPass" placeholder="暗証番号">
+      <button class="role-btn confirm" onclick="checkTeacherPass()">確認</button>
+    </div>
+  </div>
+</div>
+
+  
+</body>
+</html>
+
+
+

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>プロフィール — ココスク</title>
+
+  <!-- Flask の static 参照 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cocoprofile.css') }}">
+</head>
+<body>
+  <div class="app">
+
+    <!-- ヘッダー -->
+    <div class="header-bar">
+      <div class="brand" onclick="window.location.href='{{ url_for('timeline') }}'">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="ココスク ロゴ">
+        </div>
+        <div class="app-name">プロフィール</div>
+      </div>
+
+      <a href="{{ url_for('settings') }}" class="settings-link">⚙️ 設定</a>
+    </div>
+
+    <!-- フォロー数など -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-count">{{ following_count }}</div>
+        <div>フォロー</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-count">{{ follower_count }}</div>
+        <div>フォロワー</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-count">{{ post_count }}</div>
+        <div>投稿</div>
+      </div>
+    </div>
+
+    <!-- プロフィール表示 -->
+<div class="profile-card" id="profileDisplay">
+  <div class="profile-header">
+    <div class="avatar-preview">
+      {% if user.avatar_url %}
+        <img src="{{ user.avatar_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+      {% else %}
+        {{ user.name[0] }}
+      {% endif %}
+    </div>
+
+    <h3>{{ user.name }}</h3>
+
+    <p id="displayBio" style="text-align:center;color:var(--muted);margin-top:4px;">
+      {{ user.bio or "自己紹介なし" }}
+    </p>
+
+    <button class="edit-btn"
+      onclick="document.getElementById('profileEdit').style.display='block';
+               document.getElementById('profileDisplay').style.display='none';">
+      プロフィールを編集
+    </button>
+  </div>
+
+  <!-- 🔽 詳細情報（全部表示）-->
+  <div class="profile-details">
+
+    <div class="detail-item"><strong>趣味：</strong> {{ user.hobby or "未設定" }}</div>
+    <div class="detail-item"><strong>サークル / 部活：</strong> {{ user.circle or "未設定" }}</div>
+    <div class="detail-item"><strong>学部 / 学科 / 専攻：</strong> {{ user.course or "未設定" }}</div>
+    <div class="detail-item"><strong>学年：</strong> {{ user.grade or "未設定" }}</div>
+    <div class="detail-item"><strong>資格：</strong> {{ user.qualification or "未設定" }}</div>
+    <div class="detail-item"><strong>一言コメント：</strong> {{ user.comment or "未設定" }}</div>
+
+  </div>
+</div>
+
+
+    <!-- プロフィール編集フォーム -->
+<div class="profile-card" id="profileEdit" style="display:none;">
+  <h3 style="margin-top:0;">プロフィール編集</h3>
+
+  <form action="{{ url_for('profile_update') }}" method="POST" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label>名前（必須）</label>
+      <input type="text" name="name" value="{{ user.name }}" required>
+    </div>
+
+    <div class="form-group">
+      <label>自己紹介</label>
+      <textarea name="bio">{{ user.bio }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>趣味</label>
+      <input type="text" name="hobby" value="{{ user.hobby }}">
+    </div>
+
+    <div class="form-group">
+      <label>サークル / 部活</label>
+      <input type="text" name="circle" value="{{ user.circle }}">
+    </div>
+
+    <div class="form-group">
+      <label>学部 / 学科 / 専攻</label>
+      <input type="text" name="course" value="{{ user.course }}">
+    </div>
+
+    <div class="form-group">
+      <label>学年</label>
+      <input type="text" name="grade" value="{{ user.grade }}">
+    </div>
+
+    <div class="form-group">
+      <label>資格</label>
+      <input type="text" name="qualification" value="{{ user.qualification }}">
+    </div>
+
+    <div class="form-group">
+      <label>一言コメント</label>
+      <textarea name="comment">{{ user.comment }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>アイコン画像</label>
+      <input type="file" name="avatar" accept="image/*">
+    </div>
+
+    <button class="save-btn" type="submit">保存</button>
+    <button class="edit-btn" type="button"
+      onclick="document.getElementById('profileEdit').style.display='none';
+               document.getElementById('profileDisplay').style.display='block';">
+      キャンセル
+    </button>
+
+  </form>
+</div>
+
+
+    <!-- 自分の投稿一覧 -->
+    <div class="my-posts">
+      <h3>自分の投稿</h3>
+    
+      {% if posts %}
+        {% for post in posts %}
+          <div class="post-card" data-post-id="{{ post.id }}">
+    
+            <!-- ヘッダー（自分の名前） -->
+            <div class="post-header">
+              {{ user.name }}
+            </div>
+    
+            <!-- 本文 -->
+            <div class="post-content">
+              {{ post.content | replace('\n','<br>') | safe }}
+            </div>
+    
+            <!-- 画像 -->
+            {% if post.image_url %}
+              <img src="{{ post.image_url }}" class="post-image">
+            {% endif %}
+    
+            <!-- フッター（TLと完全一致） -->
+            <div class="post-footer">
+    
+              <!-- ❤️ いいね -->
+              <button class="like-btn" data-post-id="{{ post.id }}">❤️</button>
+    
+              <!-- カウント -->
+              <span class="like-count">{{ post.likes | length }}</span>
+    
+              <!-- 💬 リプライ -->
+              <button class="reply-btn" onclick="openReplyModal('{{ post.id }}')">
+                💬 リプライ ({{ post.replies_count | default(0) }})
+              </button>
+    
+              <!-- 🗑 削除 -->
+              <button class="delete-btn" onclick="confirmDeletePost('{{ post.id }}')">
+                🗑 削除
+              </button>
+    
+            </div>
+    
+            <!-- ▼ リプライ3件まで -->
+            {% if post.replies %}
+              <div class="reply-list">
+    
+                {% for reply in post.replies[:3] %}
+                  <div class="reply-item">
+                    <strong>{{ reply.user_name }}</strong>：
+                    <span>{{ reply.content | replace('\n', '<br>') | safe }}</span>
+    
+                    {% if reply.user_id == user.uid %}
+                      <form action="{{ url_for('delete_reply', post_id=post.id, reply_id=reply.id) }}"
+                            method="POST" style="display:inline;">
+                        <button class="delete-reply-btn">削除</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+    
+                <!-- ▼ "他○件のリプライを見る" -->
+                {% if post.replies | length > 3 %}
+                  <div class="reply-toggle" onclick="toggleReplies('{{ post.id }}')" id="toggle-btn-{{ post.id }}">
+                    他 {{ post.replies|length - 3 }} 件のリプライを見る
+                  </div>
+    
+                  <div class="reply-hidden" id="hidden-replies-{{ post.id }}" style="display:none;">
+                    {% for reply in post.replies[3:] %}
+                      <div class="reply-item">
+                        <strong>{{ reply.user_name }}</strong>：
+                        <span>{{ reply.content | replace('\n', '<br>') | safe }}</span>
+    
+                        {% if reply.user_id == user.uid %}
+                          <form action="{{ url_for('delete_reply', post_id=post.id, reply_id=reply.id) }}"
+                                method="POST" style="display:inline;">
+                            <button class="delete-reply-btn">削除</button>
+                          </form>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+    
+                    <div class="reply-toggle-close" onclick="toggleReplies('{{ post.id }}')">
+                      他 {{ post.replies|length - 3 }} 件のリプライを閉じる
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+    
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="text-align:center; color:var(--muted);">
+          投稿はまだありません。
+        </p>
+      {% endif %}
+    </div>
+    
+    
+
+    <!-- ナビバー -->
+    <div class="nav-bar">
+      <a href="{{ url_for('timeline') }}" class="nav-item">🏠 TL</a>
+      <a href="{{ url_for('search') }}" class="nav-item">🔍 検索</a>
+      <a href="{{ url_for('notifications') }}" class="nav-item">🔔 通知</a>
+      <a href="{{ url_for('dm') }}" class="nav-item">💬 DM</a>
+      <a href="{{ url_for('profile') }}" class="nav-item active">👤 プロフ</a>
+      <a href="{{ url_for('calendar') }}" class="nav-item">📅 予定</a>
+    </div>
+    <script src="{{ url_for('static', filename='js/cocotimeline.js') }}"></script>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+:root {
+    --bg:#fff7f9;
+    --card:#fff;
+    --accent:#ffd1dc;
+    --accent2:#ffeeba;
+    --text:#444;
+    --muted:#888;
+    --radius:16px;
+    font-family:"Noto Sans JP","Rounded Mplus 1c",sans-serif;
+  }
+  
+  *{ box-sizing:border-box; }
+  body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+  }
+  
+  .app {
+    max-width:600px;
+    margin:0 auto;
+    padding:10px;
+    padding-bottom:70px;
+  }
+  
+  /* ブランド */
+  .brand {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    cursor:pointer;
+  }
+  .logo {
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    overflow:hidden;
+  }
+  .logo img { width:100%; height:100%; object-fit:cover; }
+  .app-name { font-size:22px; font-weight:bold; }
+  
+  /* DMリスト */
+  .dm-list-container { margin-top:10px; }
+  
+  .dm-item {
+    display:flex;
+    align-items:center;
+    padding:12px;
+    background:var(--card);
+    border-radius:var(--radius);
+    margin-bottom:10px;
+    cursor:pointer;
+    box-shadow:0 1px 4px rgba(0,0,0,0.05);
+    transition:0.2s;
+  }
+  .dm-item:hover { background:#ffeef4; }
+  
+  .dm-avatar {
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#ccc;
+    font-size:20px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-right:10px;
+    color:#fff;
+  }
+  
+  .dm-info { flex:1; }
+  .dm-name { font-size:16px; font-weight:bold; }
+  .dm-preview { font-size:13px; color:var(--muted); }
+  
+  /* チャット画面 */
+  #chatScreen {
+    display:none;
+    flex-direction:column;
+    min-height:70vh;
+  }
+  
+  .chat-header {
+    display:flex;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+  }
+  .back-btn {
+    background:none;
+    border:none;
+    font-size:22px;
+    margin-right:10px;
+    cursor:pointer;
+    color:var(--muted);
+  }
+  .chat-title { font-size:20px; font-weight:bold; }
+  
+  .chat-container {
+    flex:1;
+    padding:10px 0;
+    min-height:60vh;
+    overflow-y:auto;
+    background:#f5f7fb;
+  }
+  
+  .message-wrapper {
+    display:flex;
+    margin-bottom:10px;
+    align-items:flex-end;
+  }
+  .message {
+    max-width:70%;
+    padding:10px 14px;
+    border-radius:16px;
+    line-height:1.4;
+  }
+  .message.you {
+    background:var(--accent);
+    margin-left:auto;
+    border-bottom-right-radius:4px;
+  }
+  .message.them {
+    background:#fff;
+    border:1px solid #eee;
+    border-bottom-left-radius:4px;
+  }
+  .chat-avatar {
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:#ccc;
+    margin-right:8px;
+    color:#fff;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  
+  /* 入力欄 */
+  .chat-input-area {
+    display:flex;
+    gap:8px;
+    padding:10px 0;
+    border-top:1px solid #eee;
+  }
+  .chat-input {
+    flex:1;
+    padding:10px;
+    border-radius:20px;
+    border:1px solid #ddd;
+  }
+  .send-btn {
+    background:linear-gradient(180deg,var(--accent),var(--accent2));
+    border:none;
+    padding:0 16px;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:bold;
+  }
+  
+  /* ナビバー */
+  .nav-bar {
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:#fff;
+    height:60px;
+    max-width:600px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    border-radius:16px 16px 0 0;
+    box-shadow:0 -2px 6px rgba(0,0,0,0.1);
+  }
+  .nav-item {
+    text-align:center;
+    text-decoration:none;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .nav-item.active {
+    color:#ff7fa3;
+    font-weight:bold;
+  }
+  
+  .avatar-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  

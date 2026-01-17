@@ -1,0 +1,60 @@
+{% extends "sidebar_macro.html" %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヘルプとサポート - ココスク</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #6c5ce7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="{{ url_for('settings_page') }}" class="back-btn">＜ 設定に戻る</a>
+        <h1>ヘルプとサポート</h1>
+        <p>お困りの際はこちらをご覧ください。</p>
+        <p>・アカウントについて</p>
+        <p>・投稿について</p>
+        <p>お問い合わせ: support@urayama.ac.jp (サンプル)</p>
+    </div>
+
+    {% from 'sidebar_macro.html' import navbar %}
+    {{ navbar('settings') }}
+</body>
+
+</html>

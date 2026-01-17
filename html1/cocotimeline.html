@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>タイムライン — ココスク</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cocotimeline.css') }}">
+
+  <style>
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #postImagePreview {
+      max-width: 100%;
+      max-height: 150px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .post-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .post-footer {
+      margin-top: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ブランド -->
+    <div class="brand">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="ココスク ロゴ">
+      </div>
+      <div class="app-name">タイムライン</div>
+    </div>
+
+    <!-- 投稿一覧 -->
+<div id="feed">
+  {% if posts %}
+    {% for post in posts %}
+      <div class="post-card" data-post-id="{{ post.id }}">
+        <div class="post-header">
+
+          <!-- アイコン（押したら他ユーザープロフィールへ） -->
+          <div class="icon"
+               onclick="window.location.href='/user/{{ post.user_id }}'">
+            {% if post.user_avatar_url %}
+              <img src="{{ post.user_avatar_url }}"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% else %}
+              {{ post.user_name[0] }}
+            {% endif %}
+          </div>
+        
+          <!-- ユーザー名（押したら他ユーザープロフィールへ） -->
+          <div class="user-name"
+               style="cursor:pointer;"
+               onclick="window.location.href='/user/{{ post.user_id }}'">
+            {{ post.user_name }}
+          </div>
+        
+        </div>
+        
+        
+
+        <div class="post-content">
+          {{ post.content | replace('\n', '<br>') | safe }}
+        </div>
+
+        {% if post.image_url %}
+          <img src="{{ post.image_url }}" class="post-image">
+        {% endif %}
+
+        <div class="post-footer">
+
+          <!-- ❤️ いいねボタン -->
+          <button class="like-btn"
+            data-post-id="{{ post.id }}">
+            ❤️
+          </button>
+
+          <!-- ❤️ カウント表示 -->
+          <span class="like-count">
+            {{ post.likes | length }}
+          </span>
+
+          <button class="reply-btn" onclick="openReplyModal('{{ post.id }}')">
+            💬 リプライ ({{ post.replies_count | default(0) }})
+          </button>
+          
+          {% if post.user_id == user.uid %}
+            <button class="delete-btn"
+              onclick="confirmDeletePost('{{ post.id }}')">
+              🗑 削除
+            </button>
+          {% endif %}
+
+        </div>
+        
+        <!-- 🔽 リプライ（3件まで表示）-->
+        {% if post.replies %}
+          <div class="reply-list">
+            {% for reply in post.replies[:3] %}
+              <div class="reply-item">
+                <strong>{{ reply.user_name }}</strong> ：
+                <span>{{ reply.content | replace('\n', '<br>') | safe }}</span>
+
+                {% if reply.user_id == user.uid %}
+                  <form action="{{ url_for('delete_reply', post_id=post.id, reply_id=reply.id) }}" method="POST" style="display:inline;">
+                    <button class="delete-reply-btn">削除</button>
+                  </form>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+            <!-- ▼ 他のリプライ表示ボタン -->
+            {% if post.replies | length > 3 %}
+              <div class="reply-toggle" onclick="toggleReplies('{{ post.id }}')"
+                id="toggle-btn-{{ post.id }}">
+                他 {{ post.replies | length - 3 }} 件のリプライを見る
+              </div>
+
+              <div class="reply-hidden" id="hidden-replies-{{ post.id }}" style="display:none;">
+                {% for reply in post.replies[3:] %}
+                  <div class="reply-item">
+                    <strong>{{ reply.user_name }}</strong> ：
+                    <span>{{ reply.content | replace('\n', '<br>') | safe }}</span>
+
+                    {% if reply.user_id == user.uid %}
+                      <form action="{{ url_for('delete_reply', post_id=post.id, reply_id=reply.id) }}"
+                        method="POST" style="display:inline;">
+                        <button class="delete-reply-btn">削除</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+
+                <div class="reply-toggle-close"
+                  onclick="toggleReplies('{{ post.id }}')">
+                  他 {{ post.replies | length - 3 }} 件のリプライを閉じる
+                </div>
+              </div>
+            {% endif %}
+
+          </div>
+        {% endif %}
+
+
+      </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center; color:var(--muted); margin-top:30px;">
+      投稿がありません。最初の投稿をしてみましょう！
+    </div>
+  {% endif %}
+</div>
+
+<!-- ▼ いいね処理のJavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".like-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const postId = btn.dataset.postId;
+
+      const response = await fetch(`/like/${postId}`, {
+        method: "POST"
+      });
+
+      if (!response.ok) {
+        alert("いいねできませんでした…");
+        return;
+      }
+
+      const data = await response.json();
+
+      // カウント部分の取得
+      const postCard = btn.closest(".post-card");
+      const countSpan = postCard.querySelector(".like-count");
+      let current = parseInt(countSpan.innerText);
+
+      // データに応じて増減
+      if (data.liked) {
+        countSpan.innerText = current + 1;
+      } else {
+        countSpan.innerText = current - 1;
+      }
+    });
+  });
+});
+</script>
+
+    
+
+    <!-- 投稿ボタン -->
+    <div class="fab" onclick="openModal()">+</div>
+
+    <!-- 投稿モーダル -->
+    <div class="modal-bg" id="modalBg" style="display:none;">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <h3>新規投稿</h3>
+
+        <form id="postForm" action="{{ url_for('post') }}" method="POST" enctype="multipart/form-data">
+          <textarea name="content" id="postText" placeholder="今考えていることをシェアしよう！"></textarea>
+
+          <img id="postImagePreview">
+
+          <input type="file" name="image" id="postImage" accept="image/*" onchange="previewImage(event)">
+          
+          <button type="submit" class="post-btn">投稿</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- リプライモーダル -->
+<div class="modal-bg" id="replyModal" style="display:none;">
+  <div class="modal-content reply-modal-content">
+    <button class="modal-close" onclick="closeReplyModal()">×</button>
+    <h4>リプライ</h4>
+
+    <form id="replyForm" method="POST">
+      <textarea name="reply" 
+          placeholder="リプライを入力"
+          style="width: 95%; height: 120px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc;">
+      </textarea>
+
+      <button class="post-btn" type="submit">送信</button>
+    </form>
+
+  </div>
+</div>
+
+
+
+    <!-- ナビバー -->
+    <div class="nav-bar">
+      <a href="{{ url_for('timeline') }}" class="nav-item active">🏠 TL</a>
+      <a href="#" class="nav-item">🔍 検索</a>
+      <a href="#" class="nav-item">🔔 通知</a>
+      <a href="#" class="nav-item">💬 DM</a>
+      <a href="{{ url_for('profile') }}" class="nav-item">👤 プロフ</a>
+      <a href="#" class="nav-item">📅 予定</a>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/cocotimeline.js') }}"></script>
+
+</body>
+</html>

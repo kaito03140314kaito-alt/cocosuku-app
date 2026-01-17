@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>タイムライン — ココスク</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cocotimeline.css') }}">
+
+  <style>
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    #postImagePreview {
+      max-width: 100%;
+      max-height: 150px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .post-footer {
+      margin-top: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- ブランド -->
+    <div class="brand">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="ココスク ロゴ">
+      </div>
+      <div class="app-name">タイムライン</div>
+    </div>
+
+    <!-- 投稿一覧 -->
+    <div id="feed">
+      {% if posts %}
+      {% include 'post_items.html' %}
+      {% else %}
+      <div class="no-posts-msg" style="text-align:center; color:var(--muted); margin-top:30px;">
+        投稿がありません。最初の投稿をしてみましょう！
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 無限スクロール用センサー -->
+    <div id="sentinel" style="height: 50px; text-align: center; color: #888; margin-bottom: 60px;">
+      Loading...
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        let loading = false;
+        let finished = false;
+
+        // 監視ターゲット
+        const sentinel = document.getElementById("sentinel");
+
+        const observer = new IntersectionObserver(async (entries) => {
+          if (loading || finished) return;
+
+          if (entries[0].isIntersecting) {
+            loading = true;
+
+            // 最後の投稿の作成日時を取得
+            const posts = document.querySelectorAll(".post-card");
+            if (posts.length === 0) {
+              loading = false;
+              return;
+            }
+
+            const lastPost = posts[posts.length - 1];
+            const lastCreatedAt = lastPost.dataset.createdAt;
+
+            if (!lastCreatedAt) {
+              loading = false;
+              return;
+            }
+
+            try {
+              // API fetch
+              // タイムスタンプに含まれるスペースなどをエンコード
+              const res = await fetch(`/api/timeline?last_created_at=${encodeURIComponent(lastCreatedAt)}`);
+              const data = await res.json();
+
+              if (data.html) {
+                // HTMLを追加
+                const feed = document.getElementById("feed");
+                feed.insertAdjacentHTML('beforeend', data.html);
+
+                // 新しく追加された要素に対してもイベントリスナーを設定する必要がある場合はここで
+                // （いいねボタンなどは event delegation か再設定が必要）
+                // 今回は simplisity のため、再設定関数を呼ぶ形などが望ましいが
+                // DOMContentLoaded内の like-btn イベントは既存要素にしか効かない。
+                // → event delegation (親要素監視) に書き換える方がベターだが、
+                // ここでは簡易的に再実行する関数を作るか、delegation実装を推奨。
+                attachLikeEvents();
+
+              }
+
+              if (!data.has_next) {
+                finished = true;
+                sentinel.style.display = "none";
+              }
+            } catch (e) {
+              console.error("Fetch error:", e);
+            } finally {
+              loading = false;
+            }
+          }
+        }, { rootMargin: "100px" });
+
+        observer.observe(sentinel);
+
+        // いいねボタンのイベント設定関数（再利用可能に）
+        function attachLikeEvents() {
+          // 既存のリスナーと重複しないよう工夫が必要だが、
+          // 簡易的には .like-btn:not(.bound) のようにクラス付与で管理
+          document.querySelectorAll(".like-btn:not(.bound)").forEach((btn) => {
+            btn.classList.add("bound");
+            btn.addEventListener("click", handleLike);
+          });
+        }
+
+        async function handleLike(e) {
+          const btn = e.currentTarget;
+          const postId = btn.dataset.postId;
+          const response = await fetch(`/like/${postId}`, { method: "POST" });
+          if (!response.ok) { alert("いいねエラー"); return; }
+          const data = await response.json();
+          const postCard = btn.closest(".post-card");
+          const countSpan = postCard.querySelector(".like-count");
+          let current = parseInt(countSpan.innerText);
+          countSpan.innerText = data.liked ? current + 1 : current - 1;
+        }
+
+        // 初回実行
+        attachLikeEvents();
+      });
+    </script>
+
+
+
+
+    <!-- 投稿ボタン -->
+    <div class="fab" onclick="openModal()">+</div>
+
+    <!-- 投稿モーダル -->
+    <div class="modal-bg" id="modalBg" style="display:none;">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <h3>新規投稿</h3>
+
+        <form id="postForm" action="{{ url_for('post') }}" method="POST" enctype="multipart/form-data">
+          <textarea name="content" id="postText" placeholder="今考えていることをシェアしよう！"></textarea>
+
+          <img id="postImagePreview">
+
+          <div id="ai-result" style="margin: 10px 0; padding: 10px; border-radius: 8px; display: none;"></div>
+
+          <input type="file" name="image" id="postImage" accept="image/*" onchange="previewImage(event)">
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+            <button type="button" onclick="checkFlamingRisk()" class="post-btn" style="background: #6c5ce7;">🤖
+              AIチェック</button>
+            <button type="submit" class="post-btn">投稿</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      async function checkFlamingRisk() {
+        const text = document.getElementById("postText").value;
+        const fileInput = document.getElementById("postImage");
+        const resultDiv = document.getElementById("ai-result");
+
+        if (!text && fileInput.files.length === 0) {
+          alert("テキストまたは画像を入力してください");
+          return;
+        }
+
+        resultDiv.style.display = "block";
+        resultDiv.style.background = "#f0f0f0";
+        resultDiv.style.color = "#333";
+        resultDiv.innerHTML = "🤖 AIが判定中...<br><span style='font-size:0.8rem;'>しばらくお待ちください</span>";
+
+        const formData = new FormData();
+        formData.append("content", text);
+        if (fileInput.files.length > 0) {
+          formData.append("image", fileInput.files[0]);
+        }
+
+        try {
+          const res = await fetch("/api/ai_check", {
+            method: "POST",
+            body: formData
+          });
+
+          if (!res.ok) {
+            resultDiv.innerText = "エラーが発生しました";
+            return;
+          }
+
+          const data = await res.json();
+
+          // 結果表示
+          if (data.percentage >= 0) {
+            let color = "#2ecc71"; // 安全
+            if (data.percentage >= 40) color = "#f1c40f"; // 注意
+            if (data.percentage >= 70) color = "#e74c3c"; // 危険
+
+            resultDiv.style.background = color + "20"; // 薄い背景
+            resultDiv.style.color = "#333";
+            resultDiv.style.border = `1px solid ${color}`;
+
+            resultDiv.innerHTML = `
+                <div style="font-weight:bold; color:${color}; font-size:1.1rem;">
+                    炎上確率 ${data.percentage}%
+                </div>
+                <div style="font-size:0.9rem; margin-top:5px;">
+                    ${data.reason}
+                </div>
+            `;
+          } else {
+            resultDiv.innerText = "判定できませんでした";
+          }
+
+        } catch (e) {
+          console.error(e);
+          resultDiv.innerText = "通信エラーが発生しました";
+        }
+      }
+    </script>
+
+    <!-- リプライモーダル -->
+    <div class="modal-bg" id="replyModal" style="display:none;">
+      <div class="modal-content reply-modal-content">
+        <button class="modal-close" onclick="closeReplyModal()">×</button>
+        <h4>リプライ</h4>
+
+        <form id="replyForm" method="POST">
+          <textarea name="reply" placeholder="リプライを入力"
+            style="width: 95%; height: 120px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc;">
+      </textarea>
+
+          <button class="post-btn" type="submit">送信</button>
+        </form>
+
+      </div>
+    </div>
+
+
+
+    <!-- ナビバー -->
+    <div class="nav-bar">
+      <a href="{{ url_for('timeline') }}" class="nav-item">🏠 TL</a>
+      <a href="{{ url_for('search_page') }}" class="nav-item">🔍 検索</a>
+      <a href="{{ url_for('notifications') }}" class="nav-item">🔔 通知</a>
+      <a href="{{ url_for('dm') }}" class="nav-item">💬 DM</a>
+      <a href="{{ url_for('profile') }}" class="nav-item active">👤 プロフ</a>
+      <a href="{{ url_for('calendar_password') }}" class="nav-item">📅 予定</a>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/cocotimeline.js') }}"></script>
+
+</body>
+
+</html>

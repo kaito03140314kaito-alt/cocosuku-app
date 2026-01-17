@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ profile.name }} さんのプロフィール — ココスク</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cocootherprofile.css') }}">
+</head>
+<body>
+  <div class="app">
+
+    <!-- ヘッダー -->
+    <div class="header-bar">
+      <div class="brand" onclick="window.location.href='{{ url_for('timeline') }}'">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='image/Cocosku_logo2.png') }}" alt="ココスク ロゴ">
+        </div>
+        <div class="app-name">{{ profile.name }}</div>
+      </div>
+    </div>
+
+    <!-- プロフィール -->
+    <div class="profile-area">
+
+      <!-- アイコン -->
+      <div class="profile-icon">
+        {% if profile.avatar_url %}
+          <img src="{{ profile.avatar_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        {% else %}
+          {{ profile.name[0] }}
+        {% endif %}
+      </div>
+
+      <!-- 名前 -->
+      <div class="profile-name">{{ profile.name }}</div>
+
+      <!-- BIO -->
+      <div class="profile-bio">{{ profile.bio or "自己紹介なし" }}</div>
+
+      <!-- 詳細情報 -->
+      <div class="details-area">
+        <div class="detail-row"><div class="detail-key">趣味</div><div class="detail-value">{{ profile.hobby or "未設定" }}</div></div>
+        <div class="detail-row"><div class="detail-key">サークル</div><div class="detail-value">{{ profile.circle or "未設定" }}</div></div>
+        <div class="detail-row"><div class="detail-key">学部/学科/専攻</div><div class="detail-value">{{ profile.course or "未設定" }}</div></div>
+        <div class="detail-row"><div class="detail-key">学年</div><div class="detail-value">{{ profile.grade or "未設定" }}</div></div>
+        <div class="detail-row"><div class="detail-key">資格</div><div class="detail-value">{{ profile.qualification or "未設定" }}</div></div>
+        <div class="detail-row"><div class="detail-key">一言コメント</div><div class="detail-value">{{ profile.comment or "未設定" }}</div></div>
+      </div>
+
+    </div>
+
+    <h3 style="margin-top:0;">投稿一覧</h3>
+
+    <div id="userPostsDiv">
+      {% if posts %}
+        {% for post in posts %}
+          <div class="post-card" data-post-id="{{ post.id }}">
+
+            <!-- ▼ ヘッダー -->
+            <div class="post-header">
+              
+              <!-- 投稿者アイコン -->
+              <div class="icon">
+                {% if post.user_avatar_url %}
+                  <img src="{{ post.user_avatar_url }}" 
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                {% else %}
+                  {{ post.user_name[0] }}
+                {% endif %}
+              </div>
+
+              <div>
+                <div class="user-name">{{ post.user_name }}</div>
+                <div class="time">{{ post.created_at_str }}</div>
+              </div>
+
+            </div>
+
+            <!-- 本文 -->
+            <div class="post-content">
+              {{ post.content | replace('\n','<br>') | safe }}
+            </div>
+
+            <!-- 画像 -->
+            {% if post.image_url %}
+              <img src="{{ post.image_url }}" class="post-image">
+            {% endif %}
+
+            <!-- フッター -->
+            <div class="post-footer">
+
+              <!-- ❤️ いいね -->
+              <button class="like-btn" data-post-id="{{ post.id }}">❤️</button>
+              <span class="like-count">{{ post.likes | length }}</span>
+
+              <!-- 💬 リプライ -->
+              <button class="reply-btn" onclick="openReplyModal('{{ post.id }}')">
+                💬 リプライ ({{ post.replies_count | default(0) }})
+              </button>
+
+            </div>
+
+            <!-- ▼ リプライ -->
+            {% if post.replies %}
+              <div class="reply-list">
+
+                {% for reply in post.replies[:3] %}
+                  <div class="reply-item">
+                    <strong>{{ reply.user_name }}</strong>：
+                    <span>{{ reply.content | replace('\n','<br>') | safe }}</span>
+                  </div>
+                {% endfor %}
+
+                {% if post.replies | length > 3 %}
+                  <div class="reply-toggle"
+                    onclick="toggleReplies('{{ post.id }}')"
+                    id="toggle-btn-{{ post.id }}">
+                    他 {{ post.replies|length - 3 }} 件のリプライを見る
+                  </div>
+
+                  <div class="reply-hidden" id="hidden-replies-{{ post.id }}" style="display:none;">
+                    {% for reply in post.replies[3:] %}
+                      <div class="reply-item">
+                        <strong>{{ reply.user_name }}</strong>：
+                        <span>{{ reply.content | replace('\n','<br>') | safe }}</span>
+                      </div>
+                    {% endfor %}
+                    <div class="reply-toggle-close"
+                      onclick="toggleReplies('{{ post.id }}')">
+                      閉じる
+                    </div>
+                  </div>
+                {% endif %}
+
+              </div>
+            {% endif %}
+
+          </div>
+        {% endfor %}
+
+      {% else %}
+        <div style="text-align:center; color:var(--muted); margin-top:20px;">
+          投稿はまだありません。
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ナビバー -->
+    <div class="nav-bar">
+      <a href="{{ url_for('timeline') }}" class="nav-item">🏠 TL</a>
+      <a href="#" class="nav-item">🔍 検索</a>
+      <a href="#" class="nav-item">🔔 通知</a>
+      <a href="#" class="nav-item">💬 DM</a>
+      <a href="{{ url_for('profile') }}" class="nav-item">👤 プロフ</a>
+      <a href="#" class="nav-item">📅 予定</a>
+    </div>
+
+  </div>
+</body>
+</html>
