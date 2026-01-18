@@ -1,11 +1,55 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ログイン — ココスク</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/cocologin.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ログイン — ココスク</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cocologin.css') }}">
+  <!-- Google Fonts for button styling -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:500" rel="stylesheet">
+  <style>
+    /* Google Sign-In Button Style */
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      color: #757575;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      padding: 0 16px;
+      height: 40px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .google-btn:hover {
+      background-color: #f7f7f7;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .google-btn img {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+    }
+
+    .error-msg {
+      color: #d32f2f;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+  </style>
 </head>
+
 <body>
   <div class="card">
     <div style="text-align:center; margin-bottom:16px;">
@@ -15,28 +59,108 @@
     </div>
 
     <h1>ココスクにログイン</h1>
+    <p style="text-align:center; font-size:0.9em; color:#666;">
+      @urayama.ac.jp のアカウントのみ利用可能です
+    </p>
 
-    <!-- Flask用のフォーム -->
-    <form action="{{ url_for('login_post') }}" method="POST">
-      <input type="email" name="email" placeholder="メールアドレス" required>
-      <input type="password" name="password" placeholder="パスワード" required>
-      <button type="submit" id="login-btn">ログイン</button>
-    </form>
+    <!-- Google Sign-In Button -->
+    <button id="google-login-btn" class="google-btn">
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/24px-Google_%22G%22_logo.svg.png"
+        alt="Google logo">
+      Googleアカウントでログイン
+    </button>
 
-    <div class="link">
-      <a href="{{ url_for('register') }}">新規登録はこちら</a>
-    </div>
+    <div id="error-message" class="error-msg" style="display:none;"></div>
 
     <!-- Flaskからのメッセージ表示 -->
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flash-messages">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+    {% if messages %}
+    <ul class="flash-messages">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
     {% endwith %}
   </div>
+
+  <!-- Firebase JS SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+    // User provided config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBPsgVTIj32AKMF7vxEQ82v1MSlbZxsq8",
+      authDomain: "cocosuku-machan.firebaseapp.com",
+      projectId: "cocosuku-machan",
+      storageBucket: "cocosuku-machan.firebasestorage.app",
+      messagingSenderId: "273783711198",
+      appId: "1:273783711198:web:b393d36804281e8df4694f",
+      measurementId: "G-HQ7VRJYWQC"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Domain restriction check (Client side pre-check)
+    provider.setCustomParameters({
+      hd: "urayama.ac.jp" // This hints Google to select accounts from this domain
+    });
+
+    document.getElementById('google-login-btn').addEventListener('click', () => {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          // The signed-in user info.
+          const user = result.user;
+
+          // Send the ID token to your server for session creation
+          user.getIdToken().then((idToken) => {
+            fetch('/google_login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ idToken: idToken })
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  window.location.href = data.redirect;
+                } else {
+                  // Server side denied (e.g. invalid domain despite client hint)
+                  errorDiv.textContent = data.message || "ログインに失敗しました";
+                  errorDiv.style.display = 'block';
+                  // Sign out from Firebase client as server session failed
+                  auth.signOut();
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                errorDiv.textContent = "サーバーエラーが発生しました";
+                errorDiv.style.display = 'block';
+              });
+          });
+        }).catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.error(errorCode, errorMessage);
+          errorDiv.textContent = "Googleログインがキャンセルされたか、エラーが発生しました。";
+          errorDiv.style.display = 'block';
+        });
+    });
+  </script>
 </body>
+
 </html>

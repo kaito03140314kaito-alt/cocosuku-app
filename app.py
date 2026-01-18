@@ -99,81 +99,96 @@ def index():
 # ---------------------------
 @app.route("/login")
 def login():
+    # すでにログイン済みならタイムラインへ
+    if "user" in session:
+        return redirect(url_for("timeline"))
     return render_template("cocologin.html")
 
 
 # ---------------------------
-# ログイン処理
+# Googleログイン処理 (API)
 # ---------------------------
-@app.route("/login", methods=["POST"])
-def login_post():
-    email = request.form["email"]
-    password = request.form["password"]
+@app.route("/google_login", methods=["POST"])
+def google_login():
+    data = request.json
+    id_token = data.get("idToken")
+
+    if not id_token:
+        return jsonify({"success": False, "message": "トークンがありません"}), 400
 
     try:
-        user = auth.get_user_by_email(email)
-        user_ref = db.collection("users").document(user.uid)
+        # IDトークンを検証
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token["uid"]
+        email = decoded_token.get("email")
+        name = decoded_token.get("name", "No Name")
+        picture = decoded_token.get("picture")
+
+        # ---------------------------
+        # ドメインチェック ( @urayama.ac.jp )
+        # ---------------------------
+        if not email or not email.endswith("@urayama.ac.jp"):
+            # ドメイン不一致の場合はエラーで返す（Firebase上のユーザーも削除したほうが安全だが、まずはログイン拒否）
+            # auth.delete_user(uid) # 必要であればユーザー削除
+            return jsonify({
+                "success": False, 
+                "message": "ログインできるのは @urayama.ac.jp のアカウントのみです。"
+            }), 403
+
+        # ---------------------------
+        # Firestoreへのユーザー保存/更新
+        # ---------------------------
+        user_ref = db.collection("users").document(uid)
         user_doc = user_ref.get()
 
         if not user_doc.exists:
-            flash("ユーザー情報が見つかりません。")
-            return redirect(url_for("login"))
-
-        user_data = user_doc.to_dict()
-
-        if user_data.get("password") == password:
-            session["user"] = {
-                "uid": user.uid,
-                "name": user_data.get("name"),
-                "email": email
-            }
-            return redirect(url_for("timeline"))
+            # 新規ユーザー作成
+            user_ref.set({
+                "name": name,
+                "email": email,
+                "avatar_url": picture,
+                "created_at": datetime.now(JST)
+            })
         else:
-            flash("パスワードが間違っています。")
-            return redirect(url_for("login"))
+            # 既存ユーザー: アバターなどが更新されていれば更新する等の処理（任意）
+            # ここではログイン時刻だけ更新しておくなど
+            pass
+
+        # ---------------------------
+        # セッション確立
+        # ---------------------------
+        session["user"] = {
+            "uid": uid,
+            "name": user_doc.to_dict().get("name") if user_doc.exists else name, # DBの名前を優先
+            "email": email
+        }
+
+        return jsonify({"success": True, "redirect": url_for("timeline")})
 
     except Exception as e:
-        print("ログインエラー:", e)
-        flash("メールアドレスが見つかりません。")
-        return redirect(url_for("login"))
+        print("Google Login Verify Error:", e)
+        return jsonify({"success": False, "message": "ログイン認証に失敗しました。"}), 401
 
 
 # ---------------------------
-# 新規登録画面
+# 以前のログイン処理（無効化）
+# ---------------------------
+@app.route("/login", methods=["POST"])
+def login_post():
+    flash("現在はGoogleログインのみ利用可能です。")
+    return redirect(url_for("login"))
+
+
+# ---------------------------
+# 新規登録（Googleログインに統合されたため無効化）
 # ---------------------------
 @app.route("/register")
 def register():
-    return render_template("cocoregister.html")
+    return redirect(url_for("login"))
 
-
-# ---------------------------
-# 新規登録処理
-# ---------------------------
 @app.route("/register", methods=["POST"])
 def register_post():
-    name = request.form["name"]
-    email = request.form["email"]
-    password = request.form["password"]
-
-    try:
-
-
-        user = auth.create_user(email=email, password=password)
-
-        db.collection("users").document(user.uid).set({
-            "name": name,
-            "email": email,
-            "password": password
-        })
-
-        flash("登録が完了しました！ログインしてください。")
-        return redirect(url_for("login"))
-
-    except Exception as e:
-        print("登録エラー:", e)
-        # エラー詳細を表示するように変更（デバッグ用）
-        flash(f"登録に失敗しました: {e}")
-        return redirect(url_for("register"))
+    return redirect(url_for("login"))
 
 
 # ---------------------------
