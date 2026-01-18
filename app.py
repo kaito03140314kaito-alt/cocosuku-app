@@ -7,6 +7,9 @@ import uuid
 import json
 import base64
 import google.generativeai as genai
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # ---------------------------
 # JST設定
@@ -67,7 +70,18 @@ else:
         print(f"Firebase初期化エラー(ADC): {e}")
 
 # dbの作成（初期化が成功していれば動きます）
+# dbの作成（初期化が成功していれば動きます）
 db = firestore.client()
+
+# ---------------------------
+# Cloudinary 設定
+# ---------------------------
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 
 
 # ---------------------------
@@ -197,23 +211,15 @@ def post():
 
     image_url = None
 
-    # Firebase Storage にアップロード
+    # Cloudinary にアップロード
     if image and image.filename != "":
         try:
-            bucket = storage.bucket()
-            filename = f"posts/{uuid.uuid4()}_{image.filename}"
-            blob = bucket.blob(filename)
-            
-            # Content-Typeを自動判別してアップロード
-            blob.upload_from_file(image, content_type=image.content_type)
-            
-            # 公開URLを取得（make_public() はセキュリティルール次第だが、手軽なWeb公開には便利）
-            # もしくは署名付きURLを使う手もあるが、今回は永続的な公開URLとして make_public を利用
-            blob.make_public()
-            image_url = blob.public_url
+            # Cloudinaryへアップロード
+            upload_result = cloudinary.uploader.upload(image)
+            image_url = upload_result["secure_url"]
 
         except Exception as e:
-            print("Storage 画像アップロードエラー:", e)
+            print("Cloudinary 画像アップロードエラー:", e)
             flash("画像のアップロードに失敗しました")
             return redirect(url_for("timeline"))
 
@@ -546,26 +552,27 @@ def delete_post(post_id):
         flash("削除権限がありません")
         return redirect("/timeline")
 
-    # Storage の画像削除
+    # Cloudinary の画像削除
     if post.get("image_url"):
         try:
-            # URLからファイルパスを逆算するのは難しい場合があるため、
-            # 本来は image_path もDBに保存しておくと安全だが、
-            # ここでは簡易的に実装するか、あるいは「削除しない」運用も手。
-            #
-            # Firebase Storageのpublic_url形式:
-            # https://storage.googleapis.com/BUCKET_NAME/posts%2Ffilename
-            # これをパースして削除するのは少々手間がかかる。
-            #
-            # 今回は簡易的に、「ファイル名が含まれている」前提で削除を試みるか、
-            # あるいは以前のファイル名形式 posts/{uuid}_{filename} を
-            # 完璧に再現できないならスキップするのが無難。
-            # 
-            # もし完全に削除したいなら、Firestoreに 'storage_path' を保存すべき。
-            # ここでは一旦 pass にしておく（ゴミファイルは残るがエラーで落ちるよりマシ）
-            pass
+            # 画像URLからpublic_idを抽出して削除を試みる
+            # URL例: https://res.cloudinary.com/demo/image/upload/v1570979139/sample.jpg
+            # 後ろの filename (拡張子除く) が public_id のケースが多いが、
+            # フォルダ構成などにより異なるため、簡易実装として
+            # URLの最後のパーツの拡張子を除いたものを public_id と仮定する。
+            # 正確に行うにはアップロード時に public_id をDBに保存すべき。
+            
+            image_url = post.get("image_url")
+            # / で分割した最後を取得
+            filename = image_url.split("/")[-1]
+            # . で分割した最初（拡張子削除）を取得
+            public_id = filename.rsplit(".", 1)[0]
+            
+            cloudinary.uploader.destroy(public_id)
+            print(f"Cloudinary image deleted: {public_id}")
+            
         except Exception as e:
-            print("Storage削除エラー:", e)
+            print("Cloudinary削除エラー:", e)
 
     # リプライ削除
     for reply in post_ref.collection("replies").stream():
@@ -708,15 +715,13 @@ def profile_update():
 
     file = request.files.get("avatar")
     if file and file.filename != "":
-        # Firebase Storage にアップロード
-        bucket = storage.bucket()
-        filename = f"avatars/{uid}_{uuid.uuid4()}_{file.filename}"
-        blob = bucket.blob(filename)
-        blob.upload_from_file(file, content_type=file.content_type)
-        blob.make_public()
-        
-        avatar_url = blob.public_url
-        data["avatar_url"] = avatar_url
+        try:
+            # Cloudinary にアップロード
+            upload_result = cloudinary.uploader.upload(file)
+            data["avatar_url"] = upload_result["secure_url"]
+        except Exception as e:
+            print("Avatar upload error:", e)
+            flash("アバターのアップロードに失敗しました")
 
     # Firestore 更新
     user_ref.update(data)
