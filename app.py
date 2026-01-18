@@ -51,9 +51,7 @@ elif os.path.exists("serviceAccountKey.json"):
 if cred:
     try:
         if not firebase_admin._apps:
-            firebase_admin.initialize_app(cred, {
-                'storageBucket': os.environ.get("FIREBASE_STORAGE_BUCKET")
-            })
+            firebase_admin.initialize_app(cred)
         print("Firebaseの初期化に成功しました！(Credential)")
     except Exception as e:
         print(f"Firebase初期化エラー: {e}")
@@ -62,9 +60,7 @@ else:
     # Cloud Functions / Cloud Run 環境ではこちらが動く
     try:
         if not firebase_admin._apps:
-            firebase_admin.initialize_app(options={
-                'storageBucket': os.environ.get("FIREBASE_STORAGE_BUCKET")
-            })
+            firebase_admin.initialize_app()
         print("Firebaseの初期化に成功しました！(ADC)")
     except Exception as e:
         print(f"Firebase初期化エラー(ADC): {e}")
