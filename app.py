@@ -156,10 +156,7 @@ def register_post():
     password = request.form["password"]
 
     try:
-        # ドメイン制限
-        if not email.endswith("@urayama.ac.jp"):
-            flash("登録できるのは @urayama.ac.jp のメールアドレスのみです。")
-            return redirect(url_for("register"))
+
 
         user = auth.create_user(email=email, password=password)
 
