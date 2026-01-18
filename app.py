@@ -167,7 +167,8 @@ def google_login():
 
     except Exception as e:
         print("Google Login Verify Error:", e)
-        return jsonify({"success": False, "message": "ログイン認証に失敗しました。"}), 401
+        # 詳細なエラーを返すように変更
+        return jsonify({"success": False, "message": f"ログイン認証に失敗しました: {str(e)}"}), 401
 
 
 # ---------------------------
