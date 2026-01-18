@@ -171,7 +171,8 @@ def register_post():
 
     except Exception as e:
         print("登録エラー:", e)
-        flash("登録に失敗しました。")
+        # エラー詳細を表示するように変更（デバッグ用）
+        flash(f"登録に失敗しました: {e}")
         return redirect(url_for("register"))
 
 
