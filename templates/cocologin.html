@@ -156,7 +156,8 @@
           const errorCode = error.code;
           const errorMessage = error.message;
           console.error(errorCode, errorMessage);
-          errorDiv.textContent = "Googleログインがキャンセルされたか、エラーが発生しました。";
+          // エラー内容を詳細に表示するよう変更
+          errorDiv.textContent = `エラーが発生しました: ${errorCode} (${errorMessage})`;
           errorDiv.style.display = 'block';
         });
     });
