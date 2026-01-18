@@ -333,15 +333,7 @@ def api_ai_check():
 
 
 # ---------------------------
-# タイムライン表示
-# ---------------------------
-@app.route("/timeline")
-def timeline():
-    if "user" not in session:
-        flash("ログインが必要です。")
-        return redirect(url_for("login"))
 
-    user = session["user"]
 
 # -----------------------------------------------------
 # ヘルパー: 投稿リスト取得・加工
