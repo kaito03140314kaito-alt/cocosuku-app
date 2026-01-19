@@ -102,7 +102,11 @@ def login():
     # すでにログイン済みならタイムラインへ
     if "user" in session:
         return redirect(url_for("timeline"))
-    return render_template("cocologin.html")
+    
+    # 環境変数からRealtime DatabaseのURLを取得（未設定時はデフォルト値）
+    firebase_database_url = os.environ.get("FIREBASE_DATABASE_URL", "https://cocosuku-machan-default-rtdb.firebaseio.com/")
+    
+    return render_template("cocologin.html", firebase_database_url=firebase_database_url)
 
 
 # ---------------------------
