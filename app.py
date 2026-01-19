@@ -10,6 +10,10 @@ import google.generativeai as genai
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from dotenv import load_dotenv
+
+# .env ファイルを読み込む（ローカル開発用）
+load_dotenv()
 
 # ---------------------------
 # JST設定
@@ -805,7 +809,7 @@ def other_profile(uid):
 # 設定ページ
 # ---------------------------
 @app.route("/settings")
-def settings_page():
+def settings():
     if "user" not in session:
         return redirect(url_for("login"))
     user = session["user"]
@@ -1426,9 +1430,7 @@ def calendar_password_post():
 
 
 # 後で実装
-@app.route("/settings")
-def settings():
-    return render_template("cocosettings.html")
+
 
 
 @app.route("/notifications")
@@ -1437,6 +1439,7 @@ def notifications():
         return redirect(url_for("login"))
 
     uid = session["user"]["uid"]
+    user = session["user"]
 
     # 通知を取得（新しい順）
     notif_ref = db.collection("users").document(uid)\
@@ -1452,7 +1455,7 @@ def notifications():
         n["id"] = doc.id
         notifications.append(n)
 
-    return render_template("coconotifications.html", notifications=notifications)
+    return render_template("coconotifications.html", notifications=notifications, user=user)
 
 
 # ---------------------------
