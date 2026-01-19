@@ -641,7 +641,32 @@ def profile():
         flash("ログインが必要です")
         return redirect(url_for("login"))
 
-        .order_by("created_at", direction=firestore.Query.DESCENDING)
+    try:
+        uid = session["user"]["uid"]
+
+        # ユーザーデータ取得
+        user_ref = db.collection("users").document(uid)
+        doc = user_ref.get()
+
+        if not doc.exists:
+            flash("ユーザーデータがありません")
+            return redirect(url_for("timeline"))
+
+        user_data = doc.to_dict()
+
+        # followers / following のデフォルト値
+        following = user_data.get("following", [])
+        followers = user_data.get("followers", [])
+
+        # 空項目補完
+        for key in ["bio", "hobby", "circle", "course", "grade",
+                    "qualification", "comment", "avatar_url"]:
+            user_data.setdefault(key, "")
+
+        # 投稿取得
+        posts_ref = db.collection("posts")\
+            .where("user_id", "==", uid)\
+            .order_by("created_at", direction=firestore.Query.DESCENDING)
 
     posts_raw = list(posts_ref.stream())
 
