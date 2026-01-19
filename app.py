@@ -314,7 +314,7 @@ def api_ai_check():
     image = request.files.get("image")
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         prompt_parts = []
         prompt_parts.append("""
