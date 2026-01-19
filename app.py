@@ -350,7 +350,7 @@ def api_ai_check():
 
     except Exception as e:
         print("AI Check Error:", e)
-        return jsonify({"percentage": -1, "reason": "AIチェックに失敗しました"}), 500
+        return jsonify({"percentage": -1, "reason": f"AIチェックエラー: {str(e)}"}), 500
 
 
 

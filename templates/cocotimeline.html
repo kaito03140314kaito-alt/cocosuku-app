@@ -227,7 +227,12 @@
           });
 
           if (!res.ok) {
-            resultDiv.innerText = "エラーが発生しました";
+            try {
+              const errData = await res.json();
+              resultDiv.innerText = errData.reason || "エラーが発生しました";
+            } catch (e) {
+              resultDiv.innerText = "エラーが発生しました";
+            }
             return;
           }
 
@@ -252,7 +257,7 @@
                 </div>
             `;
           } else {
-            resultDiv.innerText = "判定できませんでした";
+            resultDiv.innerText = data.reason || "判定できませんでした";
           }
 
         } catch (e) {
