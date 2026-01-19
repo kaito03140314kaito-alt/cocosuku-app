@@ -668,35 +668,40 @@ def profile():
             .where("user_id", "==", uid)\
             .order_by("created_at", direction=firestore.Query.DESCENDING)
 
-    posts_raw = list(posts_ref.stream())
+        posts_raw = list(posts_ref.stream())
 
-    posts = []
-    for p in posts_raw:
-        item = p.to_dict()
-        item["id"] = p.id
+        posts = []
+        for p in posts_raw:
+            item = p.to_dict()
+            item["id"] = p.id
 
-        # リプライ取得
-        replies_ref = db.collection("posts").document(p.id).collection("replies")
-        replies = []
-        for r in replies_ref.stream():
-            reply_data = r.to_dict()
-            reply_data["id"] = r.id
-            replies.append(reply_data)
+            # リプライ取得
+            replies_ref = db.collection("posts").document(p.id).collection("replies")
+            replies = []
+            for r in replies_ref.stream():
+                reply_data = r.to_dict()
+                reply_data["id"] = r.id
+                replies.append(reply_data)
 
-        item["replies"] = replies
-        item["replies_count"] = len(replies)
+            item["replies"] = replies
+            item["replies_count"] = len(replies)
 
-        posts.append(item)
+            posts.append(item)
 
-    return render_template(
-        "cocoprofile.html",
-        user=user_data,
-        posts=posts,
-        post_count=len(posts),
+        return render_template(
+            "cocoprofile.html",
+            user=user_data,
+            posts=posts,
+            post_count=len(posts),
+            follower_count=len(followers),
+            following_count=len(following)
+        )
 
-        follower_count=len(followers),
-        following_count=len(following)
-    )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Profile Error: {e}")
+        return f"エラーが発生しました: {str(e)}", 500
 
 
 
